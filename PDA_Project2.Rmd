@@ -51,6 +51,7 @@ library(cowplot)
 
 ###   Model to Predict Tracheostomy Placement in Neonates
 
+
 ###                   ABSTRACT
 
 **Background:** In recent past extended ventilation due to severe bronchopulmonary dysplasia (BPD) has risen as more infants survive severe BPD , making it the primary reason for tracheostomy in infants under the age of one year (Akangire & Manimtim, 2023). The timing for tracheostomy placement has been an ongoing discussion with previous studies showing its benefits on growth (Akangire & Manimtim, 2023). The criteria and timing for tracheostomy in neonates with sBPD differs significantly among centers and their timings are currently unclear in pediatric care. The existing methods for predicting tracheostomy placement have shown an accurate prediction of the likelihood of tracheostomy placement based on baseline demographics and clinical diagnoses but lacks details on respiratory parameters and fail to provide predictions at various postmenstrual ages (PMA).This project aims to develop regression models that predicts the outcome of tracheostomy to inform the criteria for its indication and optimal timing of tracheostomy placement.
@@ -394,6 +395,7 @@ predict_probs1 <- predict(mod, type="response")
 ```
 
 
+
 ```{r}
 ###################################################### 
 #### Ridge for 36weeks data #### 
@@ -436,10 +438,7 @@ trach_df_long$score_ridge <- x_vars %*% avg_coefs_ridge
 mod2 <- glmer(Tracheostomy~score_ridge + (1|center), data = trach_df_long, family = "binomial")
 predict_probs9 <- predict(mod2, type="response")
 
-```
 
-
-```{r}
 ###################################################### 
 #### Lasso for 44 weeks data #### 
 ###################################################### 
@@ -485,9 +484,8 @@ avg_coefs_lasso2 <- apply(lasso_coef2, 1, mean)
 trach_df_long2 <- mice::complete(trach_df_mice_out2,action="long") 
 x_vars2 <- model.matrix(Tracheostomy~. , trach_df_long2)[,-c(2,3)]
 trach_df_long2$score_lasso2 <- x_vars2 %*% avg_coefs_lasso2
-mod.2 <- glmer(Tracheostomy~score_lasso2 + (1|center), data = trach_df_long2, family = "binomial")# , control = glmerControl(optCtrl = list(maxfun = 1000)))
+mod.2 <- glmer(Tracheostomy~score_lasso2 + (1|center), data = trach_df_long2, family = "binomial")
 predict_probs1.2 <- predict(mod.2, type="response")
-#summary(predict_probs)
 
 ```
 
@@ -563,6 +561,7 @@ table %>%
 
 Lasso selects 16 predictors with non-zero coefficients from 36 weeks data and 10 predictors from weeks 44 data. Inclusion of `center`, `maternal ethnicity`, `delivery method`, `prenatal steroids`, `maternal chorioamnionitis`, `any surfactant use`, `ventilation support `, ``peep_cmH2o modification`,`hosp_dc_ga` and `medication administration for pulmonary hypertension` predictors are observed in both 36 weeks and 44 weeks.These coeffiecients were included in developing the predictive models.
 
+
 ```{r}
 ###################################################### 
 #### Model evaluation for lasso Ridge at 36 weeks #### 
@@ -637,6 +636,7 @@ calib_plot
 
 In the development of the predictive model for tracheostomy placement, the analysis centered on the imputed dataset obtained through the Multiple Imputation by Chained Equations (MICE) approach. Transforming the imputed dataset into a long format facilitated subsequent steps in model development. To evaluate the model's performance, we implemented a train-test split, allocating 70% of the data for training and the remaining 30% for testing. We employed a mixed effects logistic regression model utilizing the generalized logistic mixed-effects regression approach, introducing a random intercept for the center variable and a random slope `for hosp_dc_ga` variable on the assumption that gestational age at discharge varied across centers. Variables drawn from Lasso regression models were included as fixed effects in both 36 and 44 weeks models. The 36weeks model included twice more predictors than the 44weeks model (`birth_hc`, `sex`, `any_surf`, `weight`, `inspired_ocygen`). The model was trained on the training set and subsequent evaluation on the test set, offering predictions based on a predefined threshold of 0.5 for the probability of tracheostomy placement. 
 
+
 ```{r}
 #################################################################
 #### DEVELOPING A PREDICTIVE MODEL using 36 weeks data ####
@@ -688,6 +688,7 @@ The mixed effects model at 36 weeks is represented with the equation below. The 
 & + \beta_{11} \times \text{hosp\_dc\_ga} + \beta_{12} \times \text{med\_ph\_36wks} + \beta_{13} \times \text{peep\_cmH2o\_mod\_36wks} \\
 & + u_{0\text{center}} + u_{1\text{center}} \times \text{hosp\_dc\_ga}
 \end{align*}
+
 
 
 ```{r}
@@ -785,6 +786,7 @@ evaluation_metric <- evaln(preds_44, yy_test, threshold = 0.5)
 
 ###        Model Validation
 
+
 ```{r}
 # Evaluation Metrics at 36 and 44 weeks
 evaluation_36 <- evaluation(preds, y_test, threshold = 0.5)
@@ -811,6 +813,7 @@ colnames(merged_df) <- c("Metric", "Model for 44wks", "Model for 36wks")
 ```
 
 On the test data, there were no major differences between the predictive model's for predicting tracheostomy placement using 36 weeks and 44 data. The 36 weeks model achieved slightly highere metrics compared to the 44 weeks model as  indicated in Table 4.
+
 
 ```{r}
 # calibration plot for logistic regression at 36weeks
@@ -864,6 +867,7 @@ calib_plots <- plot_36 + plot_44 +
   plot_annotation(title = "Calibration Plot -Multilevel Logistic Regression Model")
 calib_plots
 ```
+
 
 
 ```{r}
@@ -923,6 +927,8 @@ This project puts forth predictive models from infants with severe bronchopulmon
 
 2. Cheung, N. H., & Napolitano, L. M. (2014). Respiratory Care. Respiratory Care, 59(6), 895-919. https://doi.org/10.4187/respcare.02971
 
+###     Supplemental Information
+Github page: The code that was used in the analysis can be found on github https://github.com/kasigi234/PHP2550-Project2
 
 \newpage
 
