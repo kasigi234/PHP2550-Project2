@@ -9,7 +9,7 @@ In recent years, the increased survival of infants with severe bronchopulmonary 
 The project utilizes data from the BPD Collaborative Registry, a collaboration between interdisciplinary BPD programs in the United States and Sweden. Collected data include respiratory parameters and demographics at 36 and 44 weeks. A generalized linear mixed-effects regression approach, incorporating Lasso and Ridge regression for variable selection, is employed. Lasso-selected variables form the basis of the predictive model, which is trained and evaluated using the same dataset. Model performance is assessed using sensitivity, specificity, and the area under the receiver operating characteristic curve (AUC).
 
 ### Results
-The predictive model is developed using 995 observations. The model is developed on train set and evaluated on the test set. On the test data, the model achieves an AUC of 0.7368, demonstrating a sensitivity of 0.4902 and specificity of 0.9835. The overall accuracy on the test set is 0.8976.
+The predictive model is developed using 995 observations. The model is developed on train set and evaluated on the test set. On the test data, the model achieves an AUC of 0.7368, demonstrating a sensitivity of 0.5 and specificity of 0.9835. The overall accuracy on the test set is 0.8976.
 
 ###  Conclusion
 This pioneering predictive model for tracheostomy timing in infants with severe BPD showcases its capacity to distinguish cases and accurately identify infants in need of tracheostomy. The overall accuracy underscores the model's reliability for informing clinical decisions although there is room for further improving the model.
