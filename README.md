@@ -12,7 +12,7 @@ The project utilizes data from the BPD Collaborative Registry, a collaboration b
 The predictive model is developed using 995 observations. The model is developed on train set and evaluated on the test set. On the test data, the model achieves an AUC of 0.7368, demonstrating a sensitivity of 0.5 and specificity of 0.9835. The overall accuracy on the test set is 0.8976.
 
 ###  Conclusion
-This pioneering predictive model for tracheostomy timing in infants with severe BPD showcases its capacity to distinguish cases and accurately identify infants in need of tracheostomy. The overall accuracy underscores the model's reliability for informing clinical decisions although there is room for further improving the model.
+This predictive model for tracheostomy timing in infants with severe BPD showcases its capacity to distinguish cases and accurately identify infants in need of tracheostomy. The overall accuracy underscores the model's reliability for informing clinical decisions although there is room for further improving the model.
 
 
 .
