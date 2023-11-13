@@ -1,9 +1,10 @@
 ---
-title: "PHP2550 Project 2"
-author: "Keviner Asigi"
+title: "PHP2550 "
+author: "PROJECT 2"
 date: "`r Sys.Date()`"
 output: pdf_document
 bibliography: references.bib
+geometry: "left=1in,right=1in,top=1in,bottom=1in"
 ---
 
 
@@ -43,28 +44,30 @@ library(reshape2)
 library(formatR)
 library(lme4)
 library(caret)
+library(patchwork)
+library(cowplot)
 
 ```
 
-#   A Model to Predict Tracheostomy Placement in Neonates
+###   Model to Predict Tracheostomy Placement in Neonates
 
-##    ABSTRACT
+###                   ABSTRACT
 
-**Background:** In recent past extended ventilation due to severe bronchopulmonary dysplasia (BPD) has risen as more infants survive severe BPD , making it the primary reason for tracheostomy in infants under the age of one year (Akangire & Manimtim, 2023). There has been an ongoing discussion about the timing for tracheostomy placement with previous studies showing its benefits on growth (Akangire & Manimtim, 2023). The criteria and timing for tracheostomy in neonates with sBPD differs significantly among centers and their timings are currently unclear in pediatric care. The existing methods for predicting tracheostomy placement have shown an accurate prediction of the likelihood of tracheostomy placement based on baseline demographics and clinical diagnoses but lacks details on respiratory parameters and fail to provide predictions at various postmenstrual ages (PMA).This project aims to develop a regression model that predicts the outcome of tracheostomy to inform the criteria for its indication and optimal timing of tracheostomy placement.
+**Background:** In recent past extended ventilation due to severe bronchopulmonary dysplasia (BPD) has risen as more infants survive severe BPD , making it the primary reason for tracheostomy in infants under the age of one year (Akangire & Manimtim, 2023). The timing for tracheostomy placement has been an ongoing discussion with previous studies showing its benefits on growth (Akangire & Manimtim, 2023). The criteria and timing for tracheostomy in neonates with sBPD differs significantly among centers and their timings are currently unclear in pediatric care. The existing methods for predicting tracheostomy placement have shown an accurate prediction of the likelihood of tracheostomy placement based on baseline demographics and clinical diagnoses but lacks details on respiratory parameters and fail to provide predictions at various postmenstrual ages (PMA).This project aims to develop regression models that predicts the outcome of tracheostomy to inform the criteria for its indication and optimal timing of tracheostomy placement.
 
-**Method:** This project utilizes data collected from the BPD  Collaborative Registry, where interdisciplinary BPD programs from the United States and Sweden collaborate to bridge knowledge gaps and improve care for children with severe BPD. Data were collected on respiratory parameters and demographic information at 36 and 44 weeks. The project utilizes a trained generalized linear mixed-effects regression approach for predicting tracheostomy placement. To enhance variable selection, Lasso and Ridge regression methods were compared. The variables selected by Lasso were then used to develop the predictive model.The model was trained and evaluated using the same dataset. The model's performance was evaluated using metrics, sensitivity, specificity, and the area under the receiver operating characteristic curve (AUC).
+**Method:** This project utilizes data collected from the BPD Collaborative Registry, where interdisciplinary BPD programs from the United States and Sweden collaborate to bridge knowledge gaps and improve care for children with severe BPD. Data were collected on respiratory parameters and demographic information at 36 and 44 weeks. The project utilizes a trained generalized linear mixed-effects regression approach for predicting tracheostomy placement. To enhance variable selection, Lasso and Ridge regression methods were compared. The variables selected by Lasso were then used to develop the predictive model.The model was trained and evaluated using the same dataset. The model's performance were evaluated using metrics such as sensitivity, specificity, and the area under the receiver operating characteristic curve (AUC).
 
-**Results:** Data with 995 observations was used in developing the predictive model. On the test data, the model achieved an AUC of 0.7368. It demonstrated a sensitivity of 0.4902 and specificity of 0.9835. The overall accuracy of the model on the test set was 0.8976.
+**Results:** Data with 995 observations was used in developing the predictive model using data collected at two different time points. On the test data, the model achieved an AUC of about 0.9 demonstrating a sensitivity of 0.55 and specificity of 0.98. The overall accuracy of the model on the test set was 0.91.
 
-**Conclusion:** This predictive model is the first predictive model for timing of tracheostomy placement in infants with sBDP. These findings underscore the model's capacity to distinguish between positive and negative cases and emphasize its accuracy in identifying infants who truly need a tracheostomy and those whom immediate intervention might not be required. The model's overall accuracy further shows its reliability for informing clinical decision-making.
+**Conclusion:** This predictive model is the first predictive model for timing of tracheostomy placement in infants with sBDP. These findings underscore the model's capacity to distinguish between positive and negative cases and shows its accuracy in identifying infants who truly need a tracheostomy and those whom immediate intervention might not be required. The model's overall accuracy further shows its reliability for informing clinical decision-making. Future work may involve evaluating the model using a different data source.
 
 ##    Introduction
 
-Tracheostomy placement in infants with severe bronchopulmonary dysplasia (sBPD) shows a critical intervention with great implications for both medical management and long-term outcomes (Akangire & Manimtim, 2023). As advancements in neonatal care have led to increased survival rates among infants with severe BPD, the need for prolonged ventilation has become a prominent indication for tracheostomy in this vulnerable population (Akangire & Manimtim, 2023). In pediatric healthcare, deciding when to do a tracheostomy in infants is crucial and the exact indication criteria and timing of tracheostomy placement in neonates with severe bronchopulmonary dysplasia (sBPD) remains a challenge. The decision-making process surrounding the timing of tracheostomy placement remains complex, with ongoing debates regarding optimal criteria and potential benefits, particularly for infants with severe forms of BPD. Previous studies have emphasized the importance of early tracheostomy placement in influencing positive growth outcomes (Cheung & Napolitano, 2014). However, despite these considerations, precise predictive models to guide the optimal timing of tracheostomy in infants with severe BPD remain a critical area of research. Dr. Chris Schmid's project aims at solving the question surrounding when to perform tracheostomy in neonates with severe bronchopulmonary dysplasia (sBPD). Analyses done in the past have successful predicted the likelihood of a tracheostomy placement based on the baseline patient characteristics and clinical diagnoses but none have utilized the the respiratory parameters which may provide accurate predictions for the need for tracheostomy during early postmenstrual ages (PMA)  can greatly help in advising on the timing of the procedure.
+Tracheostomy placement in infants with severe bronchopulmonary dysplasia (sBPD) is a critical intervention with great implications for both medical management and long term outcomes (Akangire & Manimtim, 2023). As advancements in neonatal care have led to increased survival rates among infants with severe BPD, the need for prolonged ventilation has become a great indication for tracheostomy in this vulnerable population (Akangire & Manimtim, 2023). In pediatric healthcare, deciding when to do a tracheostomy in infants is crucial and the exact indication criteria and timing of tracheostomy placement in neonates with severe bronchopulmonary dysplasia (sBPD) remains a challenge. The decision making process surrounding the timing of tracheostomy placement remains complex, with ongoing debates regarding optimal criteria and potential benefits, particularly for infants with severe forms of BPD. Previous studies have shown the importance of early tracheostomy placement in influencing positive growth outcomes (Cheung & Napolitano, 2014). However, despite these considerations, precise predictive models to guide the optimal timing of tracheostomy in infants with severe BPD remain a critical area of research. Dr. Chris Schmid's project aims at solving the question surrounding when to perform tracheostomy in neonates with severe bronchopulmonary dysplasia (sBPD). Analyses done in the past have successful predicted the likelihood of a tracheostomy placement based on the baseline patient characteristics and clinical diagnoses but none have utilized the respiratory parameters which may provide accurate predictions for the need for tracheostomy during early postmenstrual ages (PMA) which could greatly help in advising on the timing of the procedure.
 
 ##    Methods
 
-The dataset used in the analysis is sourced from a national database and comprises demographic details, diagnostic information, and respiratory parameters of infants diagnosed with sBPD. These infants were admitted to collaborative NICUs, and the dataset specifically includes data on their respiratory support status at 36 weeks post menstrual age (PMA). 995 records from the data collected at 36 weeks were used in the analysis. The data was first preprocessed which involved cleaning outlier data points, removal of duplicated IDs, and handling missing data to maintain the data's quality and reliability. Variable transformation was then undertaken to standardize numerical data. This included normalization and scaling numerical variables to a more meaningful comparison across variables. To handle missing data, we utilized the Multiple Imputation by Chained Equations (MICE) package in R, a method that allowed estimation of missing values while preserving the dataset's statistical properties. Binary variables were adjusted to the appropriate format to enhance consistency and interpretation of the data.
+The data utilized in the analysis is sourced from a national database and comprises demographic details, diagnostic information, and respiratory parameters of infants diagnosed with sBPD. These infants were admitted to collaborative NICUs, and the dataset specifically includes data on their respiratory support status at 36 weeks and 44 weeks post menstrual age (PMA). The analysis used 995 records of data collected both at 36 and 44 weeks. Minimal data preprocessing was performed before the analysis. Duplicated records were removed, outlier points as observed in `hosp_dc_ga` were normalized on z scale and variables were renamed to more meaningful naming. Multiple Imputation by Chained Equations (MICE) package in R was used to handle missing data. Binary variables were adjusted to the appropriate format to enhance consistency and interpretation of the data. Data for 36 weeks and 44 weeks were handled independently. 
 
 ```{r}
 # load the data
@@ -154,6 +157,8 @@ trach <- fact(trach)
 
 # Standardize hosp discharge gestational age
 trach$hosp_dc_ga <- as.numeric(abs(scale(trach$hosp_dc_ga)))
+#trach$weight_36wks <- as.numeric(abs(scale(trach$weight_36wks)))
+#trach$weight_44wks <- as.numeric(abs(scale(trach$weight_44wks)))
 
 #View(trach)
 ```
@@ -176,7 +181,7 @@ trach_44wks <- trach[, -which(colnames(trach) %in% cols_36wks)]
 
 ##    Missing Data
 
-Missing data are first checked for in each variable in the data. There are notable differences in missingness between 36 and 44 weeks. 
+Missingness were inspected for in each variable in the two datasets. There were notable differences in missingness between 36 and 44 weeks data.  
 
 ```{r}
 
@@ -199,51 +204,55 @@ missing_df <- missing_df %>%
 
 missing_df$missing_count <- round(missing_df$missing_count, 2)
 missing_df$percent_missing <- round(missing_df$percent_missing, 2)
-
-missing_df %>% 
+  
+  missing_df %>% 
+  mutate() %>%
   mutate_all(linebreak) %>%
   kbl(caption = "Missing Data at 36weeks",
-      col.names = linebreak(c("Variable","n", " % Proportion")),
-      booktabs = T, escape = F, align = "c") %>%
-  kable_styling(full_width = FALSE, latex_options = c('hold_position')) %>% 
-  row_spec(0, background = "black", color = "white")
-
+  col.names = linebreak(c("Variable", "n", "% Proportion")),
+  booktabs = T, escape = T, align = "c") %>%
+  kable_styling(full_width = FALSE, 
+                latex_options = c('hold_position'),
+                font_size = 12) #%>%
+  #row_spec(0, background = "#333333", color = "white")
 
 ```
+
 
 ```{r}
 # Distribution of Missing Data at 44 weeks
-missing_df <- data.frame(
+missing_df2 <- data.frame(
   Variable = names(trach_44wks),
   missing_count = sapply(trach_44wks, function(x) sum(is.na(x))))
 
-missing_df$percent_missing <- round(missing_df$missing_count / nrow(trach_44wks) * 100, 2)
+missing_df2$percent_missing <- round(missing_df2$missing_count / nrow(trach_44wks) * 100, 2)
 
-missing_df <- missing_df %>%
+missing_df2 <- missing_df2 %>%
   arrange(desc(percent_missing))
 
 # Remove row names
-rownames(missing_df) <- NULL
+rownames(missing_df2) <- NULL
 
 # Select only those with missing records
-missing_df <- missing_df %>%
+missing_df2 <- missing_df2 %>%
   filter(missing_count > 0) 
 
-missing_df$missing_count <- round(missing_df$missing_count, 2)
-missing_df$percent_missing <- round(missing_df$percent_missing, 2)
+missing_df2$missing_count <- round(missing_df2$missing_count, 2)
+missing_df2$percent_missing <- round(missing_df2$percent_missing, 2)
 
-missing_df %>% 
+  missing_df2 %>% 
+  mutate() %>%
   mutate_all(linebreak) %>%
   kbl(caption = "Missing Data at 44weeks",
-      col.names = linebreak(c("Variable","n", " % Proportion")),
-      booktabs = T, escape = F, align = "c") %>%
-  kable_styling(full_width = FALSE, latex_options = c('hold_position')) %>% 
-  row_spec(0, background = "black", color = "white")
-
+  col.names = linebreak(c("Variable", "n", "% Proportion")),
+  booktabs = T, escape = T, align = "c") %>%
+  kable_styling(full_width = FALSE, 
+                latex_options = c('hold_position'),
+                font_size = 12) 
 
 ```
 
-The observed missingness pattern at 36 weeks is likely missing not ar random (MNAR),and that missingness is not completely random and may be influenced by factors that are not measured. In the contrary the missingness at 44 weeks appears to be missing at random (MAR), suggesting that the absence of data in each variable is related to the values of other variables. We also note the variables are less correlated.
+The observed missingness pattern at 36 weeks is likely missing not ar random (MNAR),and that missingness is not completely random and may be influenced by other factors that were not measured in the study, `any_surf` had an abnormally different value for missingness . Contrary, the missingness at 44 weeks is likely to be missing at random (MAR). There is a notable pattern in missingness in some of the variables (`inspired_oxygen_44wks`, `peak_delta_44wks`, `weight_44`, `peep_cmH20_44`, `any_surf`, `med_ph_44` and `vent_support_44`) which indicates that the absence of data in these variable is related to the values of other measured covariates. We however noted that these variables were less correlated but there seem to be a fair correlation in the respiratory parameters as noted in the correlation figure. The variables in the summary table are normalized to a common scale.
 
 ```{r}
 # Check to see how correlated the missing data 
@@ -273,8 +282,6 @@ ggplot(data = cor_df, aes(x = Var1, y = Var2)) +
          "Correlation Matrix for Missing") 
 ```
 
-Based on the correlation matrix, it appears that the missing data in these variables may be missing at random (MAR) or due to other factors not directly related to the variables' values or each other since we do see the correlations between missingness and the variables' values are weak (i.e., close to zero), suggesting that the missing data is likely missing at random (MAR) and not related to the actual values of the variables. In the correlation matrix, there are no strong correlations between missingness and the values of the variables, indicating that the missing data doesn't appear to be directly related to the values of these variables. Notably, these pairs show a fair correlation `*weight_36wks*` and `*weight_44wks*`  (0.7918) ,`*peak_delta_36wks*` and `*peak_delta_44wks*` (0.5729) and `*inspired_oxygen_36wks*` and `*inspired_oxygen.448*` (0.5212)
-
 ```{r}
 # Calculate summary statistics for numeric columns
 summary_table <- trach %>%
@@ -290,61 +297,29 @@ summary_table <- trach %>%
 summary_table %>% 
   mutate() %>%
   mutate_all(linebreak) %>%
-  kbl(caption = "Summary Statistics for numeric columns",
+  kbl(caption = "Summary Statistics",
   col.names = linebreak(c("Variable",'Percentage Missing', "Mean", "SD",
                           "Min","Max")),
   booktabs = T, escape = T, align = "c") %>%
   kable_styling(full_width = FALSE, 
                 latex_options = c('hold_position'),
-                font_size = 14) %>%
-  row_spec(0, background = "#333333", color = "white")
+                font_size = 12)# %>%
+ # row_spec(0, background = "#333333", color = "white")
 
 ```
 
+###    Imputation Method For Missing Data
 
-```{r}
-# Check the class of each column
-column_classes <- sapply(trach_df, class)
-factor_columns <- names(column_classes[column_classes == "factor"])
-
-#colnames(trach_df)
-```
-
-
-```{r}
-# summary table for demographic characteristics
-summary_table <- trach %>%
-  dplyr::select(mat_race, mat_ethn, ga, prenat_steroids, comp_prenat_steroids,mat_chorio,sex, sga, any_surf, ventilation_support_36wks,
-                med_ph_36wks, vent_support_level_mod_44wks, med_ph_44wks, Tracheostomy, Death) %>% 
-tbl_summary(missing = "no",label = list(mat_ethn = "Ethnicity", prenat_steroids = "Prenatal Steroids",mat_chorio = "Maternal Chorioamnionitis", ventilation_support_36wks = "36wks Ventilation Support",ventilation_support_44wks = "44wks Ventilation Support", any_surf = "Infant Surfactant", ga = "Gestational Age", mat_race = "Maternal Race", med_ph_36wks = "Medication PH 36wks", comp_prenat_steroids = "Complete Prenatal Steroids"))
-
-df <- summary_table %>%
-  as_tibble()
-column_names <- c("Variable", "N = 999") 
-colnames(df) <- column_names
-
-summary_tbl <- df %>% 
-  #mutate() %>%
-  mutate_all(linebreak) %>%
-  kbl(caption = "Summary Statistics for categorical columns",
-  col.names = linebreak(c("Variable","N = 999")),
-  booktabs = T, escape = T, align = "c") %>%
-  kable_styling(full_width = FALSE, latex_options = c('hold_position'),
-                font_size = 14) %>%
-  row_spec(0, background = "#333333", color = "white")
-summary_tbl
-```
-
-##    IMPUTATION METHODS FOR MISSING DATA
-
-The Mice package has been used to do multiple imputations where 5 complete datasets with imputed values are created.
+The Mice package was used to do multiple imputations. Five complete datasets with imputed values were created for both (36 and 44 weeks) variables that were used in the analysis.  
 
 ```{r}
 # Remove variables not in imputation
 trach_sub <- trach_36wks[, !colnames(trach_36wks) %in% c("mat_race", "Death", "record_id")]
+trach_sub2 <- trach_44wks[, !colnames(trach_44wks) %in% c("mat_race", "Death", "record_id")]
 
-# impute using mice package
+# impute using mice package forboth 36 weeks and 44weeks
 trach_df_mice_out <- mice::mice(trach_sub, 5, pri=F)
+trach_df_mice_out2 <- mice::mice(trach_sub2, 5, pri=F)
 
 # Store each imputed data set
 trach_df_imp <- vector("list",5)    
@@ -353,15 +328,21 @@ for (i in 1:5){
 }
 #trach_df_imp[[1]] # Example of accessing first imputed dataset
 
+# Store each imputed data set
+trach_df_imp2 <- vector("list",5)    
+for (i in 1:5){
+   trach_df_imp2[[i]] <- mice::complete(trach_df_mice_out2,i) 
+}
+
 ```
 
-##    VARIABLE SELECTION 
+###    Variable Selection 
 
-Variable selection was conducted using the Lasso and Ridge regression approaches to identify the most influential predictors in the predictive model. We employ a 10-fold cross-validation procedure for evaluating the performance of lasso regression models in each imputed dataset. This involves partitioning the data into ten folds, with nine used for training and one for testing the model in each iteration. The process is repeated ten times, ensuring each fold serves as the test set exactly once. Utilizing the `cv.glmnet` function, lasso regression is applied to each imputed dataset, with the model being regularized using the L1 norm penalty and alpha set to 1, establishing a pure lasso model whereas ridge regression is applied to each imputed dataset, with the model being regularized using the L0 norm penalty and alpha set to 0 . Cross-validation serves as a penalty to identify the optimal lambda value that minimizes the cross-validation error, guiding the selection of coefficients for the predictive model. An appropriate lambda in lasso shrinks variable coefficients to zero when there is no association with the outcome while ridge tends to shrink coefficients towards zero but does not force them to be exactly zero. Once the optimal lambda is determined for each imputed dataset, the models are refitted to each full imputed dataset, and the coefficients are stored for subsequent analysis. We aggregate the coefficients from each imputed dataset and average to get the coefficients that are used in predictive modelling. 
+Variables used in the analysis were selected using the Lasso and Ridge regression approaches to identify the most influential predictors in the predictive model. A 10 -fold cross-validation procedure was employed for evaluating the performance of lasso and ridge regression models in each imputed dataset. Data were partitioned into ten folds, with nine folds being used for training and one for testing the model in each iteration over 10 iterations with each fold being used as the test set exactly once. Using the `cv.glmnet` function in R, both lasso and ridge regressions were applied to each imputed dataset, with lasso model being regularized using the L1 norm penalty and alpha set to 1, establishing a pure lasso model while the ridge regression model was regularized using the L0 norm penalty and alpha set to 0 . Cross-validation served as a penalty to identify the optimal lambda value that minimized the cross-validation error, guiding the selection of coefficients for the predictive model. An appropriate lambda in lasso shrinks variable coefficients to zero when there is no association with the outcome while ridge shrinks coefficients towards zero but does not force them to be exactly zero. The optimal lambda was determined for each imputed set, the models were refitted to each full imputed dataset, and the coefficients were extracted for subsequent analysis. An aggregate for the coefficients from each imputed dataset were averaged to find the coefficients that were used in predictive modelling. 
 
 ```{r}
 ###################################################### 
-#### Lasso #### 
+#### Lasso for 36 weeks #### 
 ###################################################### 
 
 library(lmerTest)
@@ -415,7 +396,7 @@ predict_probs1 <- predict(mod, type="response")
 
 ```{r}
 ###################################################### 
-#### Ridge #### 
+#### Ridge for 36weeks data #### 
 ###################################################### 
 set.seed(2)
 ridge <- function(df) { 
@@ -459,22 +440,132 @@ predict_probs9 <- predict(mod2, type="response")
 
 
 ```{r}
-# table to show the coefficients from two models
-cbind(#"Forward Stepwise"= best_model_coeffi,
-      "Lasso"=avg_coefs_lasso,
-      "Ridge"=avg_coefs_ridge
-      ) %>%
-  #round(4) %>%
-  kable(caption = "Estimated Coefficients",booktabs=T,
-      align = "c") %>%
-  kable_styling(full_width=T,latex_options = c('HOLD_position'))
+###################################################### 
+#### Lasso for 44 weeks data #### 
+###################################################### 
+
+set.seed(3)
+lasso2 <- function(df) { 
+  #' Runs 10-fold CV for lasso and returns corresponding coefficients 
+  #' @param df, data set
+  #' @return coef, coefficients for minimum cv error
+  
+  # Matrix form for ordered variables 
+  x.ord <- model.matrix(Tracheostomy ~., data = df)[,-1] 
+  y.ord <- df$Tracheostomy
+  
+  # Generate folds
+  k <- 10 
+  set.seed(123) # consistent seeds between imputed data sets
+  folds <- sample(1:k, nrow(df), replace=TRUE)
+  
+  # Lasso model
+  lasso_mod_cv <- cv.glmnet(x.ord, y.ord, nfolds = 10, foldid =
+                           folds, alpha = 1, family = "binomial") 
+  
+   lasso_mod <- glmnet(x.ord, y.ord, nfolds = 10, alpha = 1,
+                       family = "binomial", lambda =
+                        lasso_mod_cv$lambda.min)
+  # Get coefficients 
+  coef <- coef(lasso_mod) #, lambda = lasso_mod$lambda.min) 
+  return(coef) 
+}  
+
+# Find average lasso coefficients over imputed datasets
+lasso_coef1.2 <- lasso2(trach_df_imp2[[1]]) 
+lasso_coef2.2 <- lasso2(trach_df_imp2[[2]]) 
+lasso_coef3.2 <- lasso2(trach_df_imp2[[3]]) 
+lasso_coef4.2 <- lasso2(trach_df_imp2[[4]]) 
+lasso_coef5.2 <- lasso2(trach_df_imp2[[5]]) 
+lasso_coef2 <- cbind(lasso_coef1.2, lasso_coef2.2, lasso_coef3.2, 
+                    lasso_coef4.2, lasso_coef5.2) 
+avg_coefs_lasso2 <- apply(lasso_coef2, 1, mean) 
+
+# Find predicted probabilities on long imputed data (no rounding applied in this case!)
+trach_df_long2 <- mice::complete(trach_df_mice_out2,action="long") 
+x_vars2 <- model.matrix(Tracheostomy~. , trach_df_long2)[,-c(2,3)]
+trach_df_long2$score_lasso2 <- x_vars2 %*% avg_coefs_lasso2
+mod.2 <- glmer(Tracheostomy~score_lasso2 + (1|center), data = trach_df_long2, family = "binomial")# , control = glmerControl(optCtrl = list(maxfun = 1000)))
+predict_probs1.2 <- predict(mod.2, type="response")
+#summary(predict_probs)
+
 ```
 
-The table presents estimated coefficients for the Lasso and Ridge regression models. Lasso picks on 16 variables with non-zero coefficients (i.e., center, maternal ethnicity, `birth weight`, gestational age, birth head circumference, delivery method, prenatal steroids, maternal chorioamnionitis, infant sex, `small for gestational age`, any surfactant use, weight at 36 weeks, ventilation support at 36 weeks, inspired oxygen level at 36 weeks, peak delta at 36 weeks, peep_cmH2o modification at 36 weeks, and medication administration for pulmonary hypertension at 36 weeks are included. The coefficients indicate the strength and direction of the relationship between each variable and the outcome. In developing the predictive model, these variables with non-zero coefficients from both Lasso and Ridge will be considered, offering a comprehensive set of factors contributing to the predicted outcome.
 
 ```{r}
 ###################################################### 
-#### Model evaluation #### 
+#### Ridge for 44 weeks data #### 
+###################################################### 
+set.seed(4)
+ridge2 <- function(df) { 
+  #' Runs 10-fold CV for ridge and returns corresponding coefficients 
+  #' @param df, data set
+  #' @return coef, coefficients for minimum cv error
+  
+  # Matrix form for ordered variables 
+  x.ord <- model.matrix(Tracheostomy ~., data = df)[,-1] 
+  y.ord <- df$Tracheostomy
+  
+  # Generate folds
+  k <- 10 
+  set.seed(123) # consistent seeds between imputed data sets
+  folds <- sample(1:k, nrow(df), replace=TRUE)
+  
+  # Ridge model
+  ridge_mod_cv <- cv.glmnet(x.ord, y.ord, nfolds = 10, foldid = folds, alpha = 0, family = "binomial") 
+  ridge_mod <- glmnet(x.ord, y.ord, nfolds = 10, alpha = 0, family = "binomial", lambda = ridge_mod_cv$lambda.min) 
+  
+  # Get coefficients 
+  coef <- coef(ridge_mod) 
+  return(coef) 
+} 
+# Find average ridge coefficients over imputed datasets
+ridge_coef1.2 <- ridge2(trach_df_imp2[[1]]) 
+ridge_coef2.2 <- ridge2(trach_df_imp2[[2]]) 
+ridge_coef3.2 <- ridge2(trach_df_imp2[[3]]) 
+ridge_coef4.2 <- ridge2(trach_df_imp2[[4]]) 
+ridge_coef5.2 <- ridge2(trach_df_imp2[[5]]) 
+ridge_coef2 <- cbind(ridge_coef1.2, ridge_coef2.2, ridge_coef3.2, ridge_coef4.2, ridge_coef5.2) 
+avg_coefs_ridge2 <- apply(ridge_coef2, 1, mean)
+
+
+# Find predicted probabilities on long imputed data (no rounding applied in this case!)
+trach_df_long2$score_ridge2 <- x_vars2 %*% avg_coefs_ridge2
+mod2.2 <- glmer(Tracheostomy~score_ridge2 + (1|center), data = trach_df_long2, family = "binomial")
+predict_probs9.2 <- predict(mod2.2, type="response")
+
+```
+
+
+```{r}
+# table to show the coefficients from two models at 36 weeks 
+table <- cbind(
+  "36wks Lasso" = avg_coefs_lasso,
+  "36wks Ridge" = avg_coefs_ridge,
+  "44wks Lasso" = avg_coefs_lasso2,
+  "44wks Ridge" = avg_coefs_ridge2
+)
+table <- round(table, 4)
+
+table <- as.data.frame(table)
+
+table %>% 
+  mutate() %>%
+  mutate_all(linebreak) %>%
+  kbl(caption = "Estimated Coefficients",
+  #col.names = linebreak(c("3",'Percentage Missing', "Mean", "SD",
+                        #  "Min","Max")),
+  booktabs = T, escape = T, align = "c") %>%
+  kable_styling(full_width = FALSE, 
+                latex_options = c('hold_position'),
+                font_size = 12)
+```
+
+Lasso selects 16 predictors with non-zero coefficients from 36 weeks data and 10 predictors from weeks 44 data. Inclusion of `center`, `maternal ethnicity`, `delivery method`, `prenatal steroids`, `maternal chorioamnionitis`, `any surfactant use`, `ventilation support `, ``peep_cmH2o modification`,`hosp_dc_ga` and `medication administration for pulmonary hypertension` predictors are observed in both 36 weeks and 44 weeks.These coeffiecients were included in developing the predictive models.
+
+```{r}
+###################################################### 
+#### Model evaluation for lasso Ridge at 36 weeks #### 
 ######################################################
 # roc and auc
 roc_lasso <- roc(trach_df_long$Tracheostomy,predict_probs1)
@@ -490,31 +581,70 @@ roc_data$model <- c(rep("Lasso",nrow(roc_curve_lasso)),
                     rep("Ridge",nrow(roc_curve_ridge)))
 
 # plot ROC curves for models that were used in variable selection
-ggplot(roc_data, aes(x = FPR, y = TPR, color = model)) +
+p36 <- ggplot(roc_data, aes(x = FPR, y = TPR, color = model)) +
   geom_line() +
   geom_abline(intercept = 0, slope = 1, color = "grey", linetype = "dashed") +
   labs(x = "False Positive Rate", y = "True Positive Rate", 
-       title = "ROC Curves") +
+       title = "36 weeks") +
   theme(plot.title = element_text(hjust = 0.5),
         plot.subtitle = element_text(hjust = 0.5,size = 8)) +
   theme_minimal()
+
+###################################################### 
+#### Model evaluation for lasso Ridge at 44 weeks #### 
+######################################################
+# roc and auc
+roc_lasso2 <- roc(trach_df_long2$Tracheostomy,predict_probs1.2)
+roc_ridge2 <- roc(trach_df_long2$Tracheostomy,predict_probs9.2)
+
+roc_curve_lasso2 <- data.frame(FPR = 1-roc_lasso$specificities, 
+                              TPR = roc_lasso$sensitivities)
+roc_curve_ridge2 <- data.frame(FPR = 1-roc_ridge$specificities, 
+                              TPR = roc_ridge$sensitivities)
+
+roc_data2 <- rbind(roc_curve_lasso2,roc_curve_ridge2)
+roc_data2$model <- c(rep("Lasso",nrow(roc_curve_lasso2)),
+                    rep("Ridge",nrow(roc_curve_ridge2)))
+
+# plot ROC curves for models that were used in variable selection
+p44 <- ggplot(roc_data2, aes(x = FPR, y = TPR, color = model)) +
+  geom_line() +
+  geom_abline(intercept = 0, slope = 1, color = "grey", linetype = "dashed") +
+  labs(x = "False Positive Rate", y = "True Positive Rate", 
+       title = "44 weeks") +
+  theme(plot.title = element_text(hjust = 0.5),
+        plot.subtitle = element_text(hjust = 0.5,size = 8)) +
+  theme_minimal()
+
+# Arrange plots side by side 
+#calib_plot <- plot_grid(p36, p44,ncol = 2, align = "h",
+   #                     rel_widths = c(1, 1)) +
+ # plot_annotation(title = "ROC Curves for Variable Selection Regression Model")
+
+#calib_plot
+
+# Arrange plots side by side 
+calib_plot <- p36 + p44 +
+  plot_layout(guides = "collect") +
+  plot_annotation(title = "ROC Curves for Regression in Coefficients Selection")
+calib_plot
 ```
 
 
-## MODEL DERIVATION
+## Model Derivation
 
-In developing the predictive model for tracheostomy placement, the analysis was conducted on the imputed dataset obtained through the Multiple Imputation by Chained Equations (MICE) approach. The imputed dataset was transformed into a long format, facilitating the subsequent steps. A train-test split was created to evaluate the model's performance, with 70% of the data used for training and the remaining 30% for testing. The mixed-effects logistic regression model was fitted using the generalized linear mixed-effects regression approach with the random intercept for the center variable, incorporating variables selected from both Lasso and Ridge regression models. The variables selected from Lasso included maternal ethnicity, birth weight, birth head circumference, gestational age, delivery method, prenatal steroids, composite prenatal steroids, infant sex, any surfactant use, weight at 36 weeks, ventilation support at 36 weeks, inspired oxygen level at 36 weeks, hospital discharge gestational age, medication administration at 36 weeks, and peep_cmH2o modification at 36 weeks. Variables not retained in Lasso but included from Ridge regression were peak delta at 36 weeks and maternal chorioamnionitis. The model was trained on the training set and evaluated on the test set, providing predictions based on a predefined threshold of 0.5 for the probability of tracheostomy placement. This comprehensive approach ensures the inclusion of relevant variables and contributes to the model's predictive accuracy.
+### Multilevel Logistic Regression Model
+
+In the development of the predictive model for tracheostomy placement, the analysis centered on the imputed dataset obtained through the Multiple Imputation by Chained Equations (MICE) approach. Transforming the imputed dataset into a long format facilitated subsequent steps in model development. To evaluate the model's performance, we implemented a train-test split, allocating 70% of the data for training and the remaining 30% for testing. We employed a mixed effects logistic regression model utilizing the generalized logistic mixed-effects regression approach, introducing a random intercept for the center variable and a random slope `for hosp_dc_ga` variable on the assumption that gestational age at discharge varied across centers. Variables drawn from Lasso regression models were included as fixed effects in both 36 and 44 weeks models. The 36weeks model included twice more predictors than the 44weeks model (`birth_hc`, `sex`, `any_surf`, `weight`, `inspired_ocygen`). The model was trained on the training set and subsequent evaluation on the test set, offering predictions based on a predefined threshold of 0.5 for the probability of tracheostomy placement. 
 
 ```{r}
-
 #################################################################
-#### DEVELOPING A PREDICTIVE MODEL ####
+#### DEVELOPING A PREDICTIVE MODEL using 36 weeks data ####
 ##################################################################
-#imputed_df <- complete(trach_df_mice_out, 1)
 trach_df_long <- mice::complete(trach_df_mice_out,action="long")
 y <- trach_df_long$Tracheostomy
 
-# Create a train-test split
+# partion data into train-test split
 set.seed(2550)
 train_indices <- createDataPartition(y, p = 0.7, list = FALSE)
 train_data <- trach_df_long[train_indices, ]
@@ -522,21 +652,46 @@ test_data <- trach_df_long[-train_indices, ]
 
 y_test <- as.factor(test_data$Tracheostomy)
 
-# Fit a mixed-effects logistic regression model
-model2 <- glmer(Tracheostomy ~ mat_ethn + birth_hc + ga + deliv_method + prenat_steroids + comp_prenat_steroids + sex + any_surf + weight_36wks + ventilation_support_36wks + inspired_oxygen_36wks + hosp_dc_ga + med_ph_36wks + peep_cmH2o_mod_36wks + (1|center), data = train_data, family = binomial) ## VARIABLES FROM LASSO mat_chorio + peak_delta_36wks
+# Fit a logistic model with random intercept and slope
+model2 <- glmer(Tracheostomy ~ mat_ethn + birth_hc  + deliv_method + prenat_steroids + comp_prenat_steroids + sex + any_surf + weight_36wks + ventilation_support_36wks + inspired_oxygen_36wks + hosp_dc_ga + med_ph_36wks + peep_cmH2o_mod_36wks + (1 + hosp_dc_ga |center), data = train_data, family = binomial(link = "logit"))  
 
 # Predict on test set
-pred_probs <- predict(model2, newdata = test_data, type = "response")
-threshold <- 0.5
-preds <- ifelse(pred_probs > threshold, 1, 0)
-preds <- factor(preds, levels = levels(y_test))
+preds <- predict(model2, newdata = test_data, type = "response")
 
+#################################################################
+#### DEVELOPING A PREDICTIVE MODEL using 44 weeks data ####
+##################################################################
+trach_df_long2 <- mice::complete(trach_df_mice_out2,action="long")
+yy <- trach_df_long2$Tracheostomy
+
+# train and test split
+set.seed(2550)
+train_idx <- createDataPartition(y, p = 0.7, list = FALSE)
+train_df <- trach_df_long2[train_idx , ]
+test_df <- trach_df_long2[-train_idx , ]
+
+yy_test <- as.factor(test_df$Tracheostomy)
+
+# Fit a mixed-effects logistic regression model
+model2.2 <- glmer(Tracheostomy ~ mat_ethn  + deliv_method + prenat_steroids + comp_prenat_steroids + vent_support_level_mod_44wks + hosp_dc_ga + med_ph_44wks + peep_cmH2o_mod_44wks + (1 + hosp_dc_ga |center), data = train_df, family = binomial(link = "logit")) 
+
+preds_44 <- predict(model2.2, newdata = test_df, type="response")
 
 ```
 
+The mixed effects model at 36 weeks is represented with the equation below. The model includes the fixed effects and random effects. The Fixed effects contains labeled, the values of $\beta_{i}$ and $u_{j}$ as the random slope for hospital discharge age which is presumed to be varying across the hospitals in the different centers.   
+
+\begin{align*}
+\text{logit}(\text{Pr}(\text{Trach} = 1)) = & \beta_0 + \beta_1 \times \text{mat\_ethn} + \beta_2 \times \text{birth\_hc} + \beta_3 \times \text{deliv\_method} \\
+& + \beta_4 \times \text{prenat\_steroids} + \beta_5 \times \text{comp\_prenat\_steroids} + \beta_6 \times \text{sex} + \beta_7 \times \text{any\_surf} \\
+& + \beta_8 \times \text{weight\_36wks} + \beta_9 \times \text{ventilation\_support\_36wks} + \beta_{10} \times \text{inspired\_oxygen\_36wks} \\
+& + \beta_{11} \times \text{hosp\_dc\_ga} + \beta_{12} \times \text{med\_ph\_36wks} + \beta_{13} \times \text{peep\_cmH2o\_mod\_36wks} \\
+& + u_{0\text{center}} + u_{1\text{center}} \times \text{hosp\_dc\_ga}
+\end{align*}
+
 
 ```{r}
-# model evaluation indicators
+# model evaluation indicators for 36 weeks
 # AUC, sensitivity, specificity, accuracy, precision and Brier score values of the fitted model
 evaluation <- function(pred,y_test,threshold=0.5){
   #' get AUC, sensitivity, specificity, accuracy, precision and Brier scorevalues of the fitted model
@@ -548,12 +703,12 @@ evaluation <- function(pred,y_test,threshold=0.5){
    pred_numeric <- as.numeric(as.character(pred))
   y_test_numeric <- as.numeric(as.character(y_test))
 
-  # Check if the response variable is binary
+  # Check if the outcome is binary
   if (length(unique(y_test_numeric)) > 2) {
     stop("Response variable must be binary for ROC analysis.")
   }
   
-  # Calculate ROC curve
+  # ROC curve
   roc_object <- roc(y_test_numeric, pred_numeric, levels = levels(y_test), direction = "<")
 
   # AUC
@@ -568,10 +723,9 @@ evaluation <- function(pred,y_test,threshold=0.5){
   
   Recall = TP / (TP + FN)
   Precision = TP / (TP + FP)
-  Brier_score = mean((pred_numeric-y_test_numeric)^2)
+  Brier_score = mean((pred_numeric - y_test_numeric)^2)
   F1_score = 2 * (Precision * Recall) / (Precision + Recall)
-  
-  # Return a vector of evaluation metrics
+
   return(c(AUC = auc, sensitivity = Recall , 
            specificity = TN / (TN + FP),
             accuracy = (TP + TN) / (TP + TN + FP + FN), 
@@ -582,143 +736,192 @@ evaluation <- function(pred,y_test,threshold=0.5){
   }
 evaluation_metrics <- evaluation(preds, y_test, threshold = 0.5)
 
-eval_df <- data.frame(
-  Metric = c("AUC", "Sensitivity", "Specificity", "Accuracy", "Precision", "F1 Score", "Brier Score"),
-  Value = evaluation_metrics
-)
-rownames(eval_df) <- NULL
-
-# Display the data frame using kable and kable_styling
-eval_df %>%
-  kable(caption = "Measures of discrimination and calibration ",
-        booktabs = TRUE, align = "c") %>%
-  kable_styling(full_width = TRUE, latex_options = c('HOLD_position'))
-
-
-
-```
-
-In the study, we developed a predictive model to determine the optimal timing for the implementation of tracheostomy in infants, a critical decision that impacts both patient outcomes and resource utilization. The model, built using a generalized linear mixed-effects regression approach, demonstrated promising performance with an Area Under the ROC Curve (AUC) of 0.7368, indicative of good discrimination between positive and negative cases. Our model exhibited a sensitivity of 0.4902, emphasizing its ability to correctly identify infants in need of tracheostomy, while achieving a high specificity of 0.9835, illustrating its capacity to accurately identify cases where tracheostomy might not be immediately warranted. The overall accuracy of the model was 0.8976, underscoring its proficiency in classifying cases correctly. Furthermore, our model displayed a Precision of 0.8621, reflecting its precision in predicting positive cases, and an F1 Score of 0.6250, demonstrating a balanced performance between precision and recall. The Brier Score of 0.1024 reflects the model's accuracy in probabilistic predictions. These results collectively suggest that our predictive model holds promise in aiding clinical decision-making regarding the timing of tracheostomy placement in infants, offering a valuable tool for healthcare practitioners in optimizing patient care and resource allocation.
-
-##        MODEL VALIDATION
-
-On the test data, the predictive model achieved the following metrics: AUC of 0.7174, Sensitivity of 0.4749, Specificity of 0.9599, Accuracy of 0.8887, Precision of 0.6710, F1 Score of 0.5561, and Brier Score of 0.1113 as seen in Table below.
-
-##        DISCUSSION
-###       Interpretation of results
-
-The predictive model to determine the optimal timing for the implementation of tracheostomy in infants 
-
-The predictive model showed a balanced performance, with an area under the curve (AUC) of 0.7174, indicating good discrimination ability. Sensitivity was measured at 0.4749, suggesting the model's effectiveness in identifying true positive cases. High specificity, with a value of 0.9599, highlights the model's capability to correctly identify true negative instances. The overall accuracy of the model on the test data was 0.8887, emphasizing its reliability in making correct predictions. Precision, measured at 0.6710, indicates the proportion of correctly predicted positive cases among the predicted positives. The F1 Score, a harmonic mean of precision and sensitivity, was observed to be 0.5561, providing a comprehensive measure of the model's overall performance. Additionally, the Brier Score, representing the mean squared difference between predicted probabilities and actual outcomes, was low at 0.1113, indicating good calibration of the model.
-
-
-
-
-In this study, we developed a predictive model to determine the optimal timing for tracheostomy placement in infants, a crucial decision in neonatal care. The data was divided into training and testing sets, allowing us to assess the model's performance on unseen data. We used the mice package for multiple imputations to handle missing values and employed a two-fold testing strategy to ensure the model's generalizability. The glmer model was built on the completed training dataset, incorporating relevant clinical variables. Predictions were generated on imputed test datasets and aggregated to produce final predictions. The model demonstrated promising discriminatory power, as indicated by an Area Under the ROC Curve (AUC) of 0.7368, along with notable sensitivity (0.4902) and specificity (0.9835). These findings suggest the potential of our predictive model to assist clinicians in making informed decisions about the timing of tracheostomy placement in infants, contributing to improved patient care and resource management.
-
-
-
-```{r}
-
-###################################################### 
-#### Model evaluation plot#### 
-######################################################
-# roc and auc
-# Load necessary libraries
-library(pROC)
-library(ggplot2)
-# model evaluation indicators
+# model evaluation indicators for 44weeks 
 # AUC, sensitivity, specificity, accuracy, precision and Brier score values of the fitted model
-evaluation <- function(pred,y_test,threshold=0.5){
+evaln <- function(pred,yy_test,threshold=0.5){
   #' get AUC, sensitivity, specificity, accuracy, precision and Brier scorevalues of the fitted model
   #' @param pred, the prediction values
   #' @param y.test, the labels of test dataset
   #' @param threshold, a numeric number of threshold to classify the probability to classes
   #' @return AUC, sensitivity, specificity, accuracy, and precision values
   #' 
-   pred_numeric <- as.numeric(as.character(pred))
-  y_test_numeric <- as.numeric(as.character(y_test))
+   pred_numeric_44 <- as.numeric(as.character(pred))
+  yy_test_numeric <- as.numeric(as.character(yy_test))
 
-  # Calculate ROC curve
-  roc_object <- roc(y_test_numeric, pred_numeric, levels = levels(y_test), direction = "<")
+  # Check if response is binary
+  if (length(unique(yy_test_numeric)) > 2) {
+    stop("Response variable must be binary for ROC analysis.")
+  }
+  
+  # ROC curve
+  roc_obj <- roc(yy_test_numeric, pred_numeric_44, levels = levels(yy_test), direction = "<")
 
   # AUC
-  auc <- roc_object$auc
+  auc <- roc_obj$auc
   
-  df <- data.frame(pred = as.numeric(pred_numeric > threshold), label = as.numeric(y_test_numeric))
+  df <- data.frame(pred = as.numeric(pred_numeric_44 > threshold), label = as.numeric(yy_test_numeric))
 
   TP <- dim(df[(df$pred==1&df$label==1),])[1]
   TN <- dim(df[(df$pred==0&df$label==0),])[1]
   FP <- dim(df[(df$pred==1&df$label==0),])[1]
   FN <- dim(df[(df$pred==0&df$label==1),])[1]
   
-  Recall = TP / (TP + FN)
-  Precision = TP / (TP + FP)
-  Brier_score = mean((pred_numeric-y_test_numeric)^2)
-  F1_score = 2 * (precision * recall) / (precision + recall)
+  recall = TP / (TP + FN)
+  precision = TP / (TP + FP)
+  brier_score = mean((pred_numeric_44 - yy_test_numeric)^2)
+  f1_score = 2 * (precision * recall) / (precision + recall)
   
-  # Return a list of metrics
-  return(list(AUC = auc, sensitivity = Recall , 
+  return(c(AUC = auc, sensitivity = recall , 
            specificity = TN / (TN + FP),
             accuracy = (TP + TN) / (TP + TN + FP + FN), 
-           precision = Precision,
-           "F1 score" = F1_score,
-            "Brier Score" = Brier_score,
-           ROC = roc_object))
+           precision = precision,
+           "F1 score" = f1_score,
+            "Brier Score" = brier_score))
 
   }
+evaluation_metric <- evaln(preds_44, yy_test, threshold = 0.5)
 
-evaluation_result <- evaluation(preds, y_test, threshold = 0.5)
+```
 
-# Accessing the ROC object from evaluation result
-roc_object <- evaluation_result$ROC
+###        Model Validation
 
-# ROC curve Plot
-roc_df <- data.frame(
-  FPR = 1 - roc_object$specificities,
-  TPR = roc_object$sensitivities)
+```{r}
+# Evaluation Metrics at 36 and 44 weeks
+evaluation_36 <- evaluation(preds, y_test, threshold = 0.5)
+evaluation_44 <- evaln(preds_44, yy_test, threshold = 0.5)
 
-ggplot(roc_df, aes(x = FPR, y = TPR)) +
-  geom_line(color = "lightblue", size = 1) +
-  geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "gray") +
-  labs(title = "ROC Curve", x = "False Positive Rate", y = "True Positive Rate") +
+evaln_df <- data.frame(
+  Metric = c("AUC", "Sensitivity", "Specificity", "Accuracy", "Precision", 
+             "F1 Score", "Brier Score"),Value = evaluation_metric)
+
+eval_df <- data.frame(
+  Metric = c("AUC", "Sensitivity", "Specificity", "Accuracy", "Precision","F1 Score", 
+             "Brier Score"),Value = evaluation_metrics)
+
+# Combine the two data frames
+merged_df <- merge(evaln_df, eval_df, by = "Metric", suffixes = c("_44wks", "_36wks"))
+
+colnames(merged_df) <- c("Metric", "Model for 44wks", "Model for 36wks")
+
+   merged_df%>%
+  kable(caption = "Measures of discrimination and calibration", booktabs = TRUE, align = "c") %>%
+  kable_styling(full_width = TRUE, latex_options = c('HOLD_position'))
+
+
+```
+
+On the test data, there were no major differences between the predictive model's for predicting tracheostomy placement using 36 weeks and 44 data. The 36 weeks model achieved slightly highere metrics compared to the 44 weeks model as  indicated in Table 4.
+
+```{r}
+# calibration plot for logistic regression at 36weeks
+num_cuts <- 10
+calib_dat <-  data.frame(probs = preds,
+                          bin = cut(preds, breaks = num_cuts),
+                          class=  
+                          as.numeric(test_df$Tracheostomy)-1)
+calib_dat <- calib_dat %>% 
+             group_by(bin) %>% 
+             dplyr::summarize(observed = sum(class)/n(), 
+                       expected = sum(probs)/n(), 
+                       se = sqrt(observed * (1- observed)/n()))
+
+plot_36 <- ggplot(calib_dat) + 
+  geom_abline(intercept = 0, slope = 1, color="red") + 
+  geom_errorbar(aes(x = expected, ymin = observed - 1.96*se, 
+                    ymax = observed + 1.96*se),
+                position = position_identity(),
+                colour="black", width = .01)+
+  geom_point(aes(x = expected, y = observed)) +
+  labs(x="Expected Proportion", y="Observed Proportion",title = 'Observed vs. Expected',
+    subtitle = "36 weeks")+
   theme_minimal()
 
 
+# calibration plot for logistic regression at 44 weeks
+num_cuts <- 10
+calib_df <-  data.frame(probs = preds_44,
+                          bin = cut(preds_44, breaks = num_cuts),
+                          class = as.numeric(test_df$Tracheostomy)-1)
+calib_df <- calib_df %>% 
+             group_by(bin) %>% 
+             dplyr::summarize(observed = sum(class)/n(), 
+                       expected = sum(probs)/n(), 
+                       se = sqrt(observed * (1- observed)/n()))
+plot_44 <-ggplot(calib_df) + 
+  geom_abline(intercept = 0, slope = 1, color="red") + 
+  geom_errorbar(aes(x = expected, ymin = observed - 1.96*se,
+                    ymax = observed + 1.96*se),
+                position = position_identity(),
+                colour="black", width = .01)+
+  geom_point(aes(x = expected, y = observed)) +
+  labs(x ="Expected Proportion", y="Observed Proportion", title = 'Observed vs. Expected ',
+       subtitle = "44 weeks") +
+  theme_minimal()
+
+# Arrange plots side by side 
+calib_plots <- plot_36 + plot_44 +
+  plot_layout(guides = "collect") +
+  plot_annotation(title = "Calibration Plot -Multilevel Logistic Regression Model")
+calib_plots
+```
+
+
+```{r}
+###################################################### 
+#### Model evaluation for 36 weeks and 44weeks #### 
+######################################################
+# roc and auc
+preds <- as.numeric(preds)
+preds_44 <- as.numeric(preds_44)
+
+logistic_36wks <- roc(test_data$Tracheostomy,preds) 
+logistic_44wks <- roc(test_df$Tracheostomy, preds_44) #preds_44)
+
+roc_curve_36 <- data.frame(FPR = 1-logistic_36wks$specificities, 
+                              TPR = logistic_36wks$sensitivities)
+roc_curve_44 <- data.frame(FPR = 1-logistic_44wks$specificities, 
+                              TPR = logistic_44wks$sensitivities)
+
+roc_dat <- rbind(roc_curve_36,roc_curve_44)
+roc_dat$model <- c(rep("logistic 36",nrow(roc_curve_36)),
+                    rep("logistic 44",nrow(roc_curve_44)))
+
+# plot ROC curves for models that were used in variable selection
+ggplot(roc_dat, aes(x = FPR, y = TPR, color = model)) +
+  geom_line() +
+  geom_abline(intercept = 0, slope = 1, color = "grey", linetype = "dashed") +
+  labs(x = "False Positive Rate", y = "True Positive Rate", 
+       title = "ROC Curves for the Predictive models") +
+  theme(plot.title = element_text(hjust = 0.5),
+        plot.subtitle = element_text(hjust = 0.5,size = 8)) +
+  theme_minimal()
+
 ```
 
 
 
 
-## LImitations
-Given the limited observations for individual outcomes, a composite outcome variable was constructed by combining "death" and "tracheostomy." This amalgamation helped increase the sample size for our outcome variable, ensuring the strength and reliability of our analysis.
+##        Discussion
+###       Interpretation of results
+
+The predictive multilevel logistics model showed a balanced performance, with an AUC of (0.9380 and 0.9293), demonstrating a good discrimination ability. Sensitivity was measured at 0.5251 and 0.5707, suggesting that the models are effective in identifying infants who really need tracheostomy placement. High specificity, with a value of 0.97, showed that the models are capable to correctly identify infants who do not require tracheostomy placement. The overall accuracy of the model on the test data was 0.55, emphasizing the models reliability in making correct predictions, With a precision measure at 0.8156. Also had lower Brier score (0.0646 and 0.0645) indicating the best calibration. Based on the above, the multilevel logistics regression models show better performance.Plots of the observed versus predicted values for each model showed that the line of best fit is quite accurate in predicting the timing and indication in the proportion of expected infants tracheostomy placement against the observed proportion of those requiring tracheostomy on average as seen in calibration figure. However there is still room for improvement as they do not perform optimally. Overall, these findings showed the potential of the predictive model to assist clinicians in making informed decisions about the timing of tracheostomy placement in infants, contributing to improved patient care and resource management.
+
+One strength in this project is that the included predictors for each model had limited overlap which shows that both models (36weeks and 44 weeks) could be used to predict the timing for tracheostomy placement among. Also the missingness was    Overall, the models performed quite well but not optimal. 
 
 
+##    Limitations
+This project has quite a number of limitations. First the data were collected at different centers, with some of the centers having missing data. While there were no huge numbers of missingness, this limited our ability to develop predictive models for each center due to limited data. Also, 
+there was limited observations for the two potential outcomes which may have limited our analysis. To help increase the sample size for the outcome, a composite outcome variable would have been constructed by combining `death` and `tracheostomy` but these outcomes seem to be very different and would limit the model's applicability/generalization. Additionally, missingness varied in the two time points when the data collected and this would have been as a result of the multicenter different data collection periods. Certain variables such as `any_surf` which may be strong predictors for the outcome had the largest percentage of missingness. Lastly, the model was built and trained on the same dataset and this may limit its generalizability to other populations. Additional future work will need to evaluate the model on an external dataset. 
 
+## Conclusion
 
-# Conclusion
+This project puts forth predictive models from infants with severe bronchopulmonary dysplasia from centers in the United States and Sweden. Based on lasso regression models, the measurements of several respiratory measures at two different time points allows for the prediction of the timing criteria for tracheostomy placements. These are among the first models that can help decide when a tracheostomy is required in infants with sBDP. The clinical application of these models is to aid in determining the optimal timing for tracheostomy placement in infants.  We hope that the model's performance, in identifying infants who truly need a tracheostomy and those whom an immediate intervention may not be required, will be valuable tool for clinical decision making and management of infants which could potentially improve the care of infants needing tracheostomy placement and contribute to better healthcare outcomes and resource management.
 
-In conclusion, the findings of this study contribute to our understanding of tracheostomy in infants with sBPD. Further research in this area is warranted to improve clinical decision-making and enhance the care of these fragile infants.
-
-
-Conclusions:
-In conclusion, our study offers a valuable contribution to the field of pediatric care by providing a predictive model that aids in determining the optimal timing for tracheostomy placement in infants. The model's robust performance, as evidenced by its high accuracy and discriminative ability, positions it as a valuable tool for clinicians facing the complex decision of when to perform tracheostomy. The insights derived from this model have the potential to significantly enhance the quality of care for infants requiring tracheostomy placement, contributing to improved healthcare outcomes and optimized resource management in pediatric settings.
-
-
-In the field of pediatric care, deciding when to perform a tracheostomy in infants is a crucial and impactful decision that affects patient well-being and resource use. Our study aimed to address this complexity by developing a predictive model using a statistical approach. The model showed promising results, with an AUC of 0.7368, indicating its effectiveness in distinguishing between positive and negative cases. Notably, the model demonstrated high sensitivity (0.4902) and specificity (0.9835), emphasizing its accuracy in identifying infants who truly needed a tracheostomy and those for whom immediate intervention might not be required. With an overall accuracy of 0.8976, our model proves to be a valuable tool for clinical decision-making, providing insights that could potentially improve the care of infants needing tracheostomy placement and contribute to better healthcare outcomes and resource management.
-
-
-# References
-
-```{r ref.label=labs,echo=TRUE,eval=FALSE}
-# Load papaja for citation formatting
-library(papaja)
-```
+##    References
 
 1.    Akangire G, Manimtim W. Tracheostomy in infants with severe bronchopulmonary dysplasia: A review. Front Pediatr. 2023 Jan 12;10:1066367. doi: 10.3389/fped.2022.1066367. PMID: 36714650; PMCID: PMC9878282
 
-
-
+2. Cheung, N. H., & Napolitano, L. M. (2014). Respiratory Care. Respiratory Care, 59(6), 895-919. https://doi.org/10.4187/respcare.02971
 
 
 \newpage
@@ -728,6 +931,9 @@ library(papaja)
 ```{r get-labels, echo = FALSE}
 labs = knitr::all_labels()
 labs = setdiff(labs, c("setup","get-labels"))
+```
+
+```{r ref.label=labs,echo=TRUE,eval=FALSE}
 ```
 
 
